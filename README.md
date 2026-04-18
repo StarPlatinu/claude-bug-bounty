@@ -100,47 +100,122 @@ Most hunters waste hours on things that shouldn't take that long:
 
 ## Quick Start
 
-> **Prerequisite:** You need [Claude Code](https://claude.ai/claude-code) installed. It's Anthropic's free AI coding tool that runs in your terminal.
+> **Prerequisite:** [Claude Code](https://claude.ai/claude-code) for AI-driven mode, or just Python 3.8+ for CLI mode.
 
-**Step 1 — Install tools + skills**
+**Step 1 — Clone & install**
 
 ```bash
-git clone https://github.com/shuvonsec/claude-bug-bounty.git
+git clone https://github.com/StarPlatinu/claude-bug-bounty.git
 cd claude-bug-bounty
-chmod +x install_tools.sh && ./install_tools.sh   # installs scanning tools (subfinder, httpx, nuclei...)
-chmod +x install.sh && ./install.sh               # installs AI skills + commands into Claude Code
+
+chmod +x install_tools.sh && ./install_tools.sh   # subfinder, httpx, nuclei, katana, dalfox...
+chmod +x install.sh && ./install.sh               # AI skills + claudebbp CLI + Python deps
 ```
 
-**Step 2 — Start hunting (two ways)**
+**Step 2 — Pick your run mode**
 
-**Option A — Claude Code slash commands** (recommended)
+---
+
+### Mode 1 — Claude Code (AI-driven, recommended)
+
 ```bash
-claude                          # open Claude Code in your terminal
+claude          # open Claude Code in the project folder
 
-/recon target.com               # step 1: map the target (subdomains, live pages, URLs)
-/hunt target.com                # step 2: test for vulnerabilities
-/validate                       # step 3: make sure the finding is real before writing it up
-/report                         # step 4: generate a professional submission report
+/recon target.com       # map the target
+/hunt target.com        # test for vulnerabilities
+/validate               # 7-Question Gate
+/report                 # generate submission report
 ```
 
-**Option B — `claudebbp` CLI** (runs directly in any terminal, no Claude Code needed)
+---
+
+### Mode 2 — `claudebbp` CLI (pure terminal, no Claude needed)
+
 ```bash
 python claudebbp.py /recon target.com
-python claudebbp.py /hunt target.com --vuln-class ssrf
+python claudebbp.py /hunt target.com
 python claudebbp.py /validate target.com
-python claudebbp.py /report target.com --platform bugcrowd
+python claudebbp.py /report target.com
 ```
 
-**That's the core loop.** Four commands, full workflow.
-
-**Step 3 — Go autonomous**
+Focus on a specific vulnerability class:
 
 ```bash
-/autopilot target.com --normal                    # Claude Code
-python claudebbp.py /autopilot target.com --mode normal   # CLI
+python claudebbp.py /hunt target.com --vuln-class ssrf
+python claudebbp.py /hunt target.com --vuln-class idor
+python claudebbp.py /hunt target.com --vuln-class xss
+python claudebbp.py /hunt target.com --vuln-class oauth
+```
 
-/pickup target.com              # continue where you left off on a previous target
-/intel target.com               # get CVEs + disclosed reports relevant to this target
+---
+
+### Mode 3 — Autopilot (fully automated, one command)
+
+Runs the entire loop — scope check → intel → recon → hunt → validate → report — without manual steps.
+
+```bash
+# Confirms before hunting + reporting (recommended for new targets)
+python claudebbp.py /autopilot target.com --mode normal
+
+# Confirms every single step
+python claudebbp.py /autopilot target.com --mode paranoid
+
+# Zero confirmations — fully hands-free
+python claudebbp.py /autopilot target.com --mode yolo
+```
+
+---
+
+### Full Example Session
+
+```bash
+# 1. Map the target
+python claudebbp.py /recon hackerone.com
+
+# 2. See what attack surface was found
+python claudebbp.py /surface hackerone.com
+
+# 3. Pull CVEs + disclosed reports
+python claudebbp.py /intel hackerone.com
+
+# 4. Hunt for bugs
+python claudebbp.py /hunt hackerone.com
+
+# 5. Quick go/no-go triage
+python claudebbp.py /triage hackerone.com
+
+# 6. Full 7-Question Gate (scores 0–11, threshold 7 to submit)
+python claudebbp.py /validate hackerone.com
+
+# 7. Chain bugs to raise severity (IDOR→ATO, SSRF→RCE, XSS→ATO...)
+python claudebbp.py /chain hackerone.com
+
+# 8. Generate report
+python claudebbp.py /report hackerone.com --platform hackerone
+
+# 9. Pick up tomorrow where you left off
+python claudebbp.py /pickup hackerone.com
+```
+
+> All findings are saved to `~/.claudebbp/state/<target>.json` and persist between sessions automatically.
+
+---
+
+### Install Scanning Tools (one time)
+
+```bash
+# macOS
+brew install go
+go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
+go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+go install -v github.com/projectdiscovery/katana/cmd/katana@latest
+go install -v github.com/lc/gau/v2/cmd/gau@latest
+go install -v github.com/tomnomnom/waybackurls@latest
+go install -v github.com/hahwul/dalfox/v2@latest
+
+# Python deps
+pip install typer rich requests certifi
 ```
 
 <br>
