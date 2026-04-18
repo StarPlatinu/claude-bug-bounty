@@ -696,3 +696,59 @@ function formatBytes(b) {
   if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
   return (b/1048576).toFixed(1) + ' MB';
 }
+
+// ── Welcome modal ─────────────────────────────────────────────────────────────
+function initWelcome() {
+  if (!localStorage.getItem('claudebbp_welcomed')) {
+    document.getElementById('welcome-overlay').classList.remove('hidden');
+  }
+}
+
+function closeWelcome() {
+  if (document.getElementById('dontShow').checked) {
+    localStorage.setItem('claudebbp_welcomed', '1');
+  }
+  const el = document.getElementById('welcome-overlay');
+  el.style.opacity = '0';
+  setTimeout(() => el.style.display = 'none', 300);
+}
+
+// ── Guide helpers ─────────────────────────────────────────────────────────────
+// Make guide-cmd pills clickable: sets command + switches to terminal
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('guide-cmd')) {
+    const cmd = e.target.textContent.trim();
+    if (cmd.startsWith('/')) {
+      const sel = document.getElementById('cmdSelect');
+      if ([...sel.options].some(o => o.value === cmd)) sel.value = cmd;
+      onCmdChange();
+      switchTab('terminal');
+      if (activeTarget) document.getElementById('cmdTarget').value = activeTarget;
+    }
+  }
+  // Golden path steps
+  if (e.target.closest('.gp-step')) {
+    const label = e.target.closest('.gp-step').querySelector('.gp-label')?.textContent;
+    if (label) {
+      const sel = document.getElementById('cmdSelect');
+      if ([...sel.options].some(o => o.value === label)) sel.value = label;
+      onCmdChange();
+      switchTab('terminal');
+    }
+  }
+  // Command reference rows
+  if (e.target.closest('.cr-row')) {
+    const cmd = e.target.closest('.cr-row').querySelector('.guide-cmd')?.textContent;
+    if (cmd) {
+      const sel = document.getElementById('cmdSelect');
+      if ([...sel.options].some(o => o.value === cmd)) sel.value = cmd;
+      onCmdChange();
+      switchTab('terminal');
+    }
+  }
+});
+
+// Init on load
+document.addEventListener('DOMContentLoaded', () => {
+  initWelcome();
+});

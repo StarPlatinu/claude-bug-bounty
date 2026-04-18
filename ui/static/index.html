@@ -21,6 +21,9 @@
     <button class="nav-btn" onclick="openPalette()">
       ⌘ Command Palette <span class="kbd">Ctrl K</span>
     </button>
+    <button class="nav-btn" onclick="switchTab('guide')">
+      📖 Guide
+    </button>
     <div class="h-spacer"></div>
     <div class="status-pill">
       <div class="status-dot" id="statusDot"></div>
@@ -59,6 +62,9 @@
         </div>
         <div class="tab" id="tab-reports" onclick="switchTab('reports')">
           📄 Reports
+        </div>
+        <div class="tab" id="tab-guide" onclick="switchTab('guide')">
+          📖 Guide
         </div>
       </div>
 
@@ -245,6 +251,171 @@
   </div>
 </div>
 
+      <!-- ── Guide ── -->
+      <div class="panel" id="panel-guide">
+        <div class="guide-panel">
+
+          <!-- Hero -->
+          <div class="guide-hero">
+            <div class="guide-hero-inner">
+              <div class="guide-logo-big">B</div>
+              <div>
+                <h1 class="guide-h1">claudebbp <span class="guide-version">v4.2</span></h1>
+                <p class="guide-tagline">AI-powered bug bounty automation — recon to report in one workflow</p>
+              </div>
+            </div>
+            <div class="guide-path">
+              <div class="gp-step"><div class="gp-num">1</div><div class="gp-label">/recon</div><div class="gp-sub">Map target</div></div>
+              <div class="gp-arrow">→</div>
+              <div class="gp-step"><div class="gp-num">2</div><div class="gp-label">/hunt</div><div class="gp-sub">Find bugs</div></div>
+              <div class="gp-arrow">→</div>
+              <div class="gp-step"><div class="gp-num">3</div><div class="gp-label">/validate</div><div class="gp-sub">Gate check</div></div>
+              <div class="gp-arrow">→</div>
+              <div class="gp-step"><div class="gp-num">4</div><div class="gp-label">/report</div><div class="gp-sub">Submit</div></div>
+            </div>
+          </div>
+
+          <div class="guide-body">
+            <div class="guide-col">
+
+              <!-- Quick start -->
+              <div class="guide-card">
+                <div class="gc-head">🚀 Quick Start (5 minutes)</div>
+                <div class="gc-body">
+                  <div class="guide-step-list">
+                    <div class="gsl-item">
+                      <div class="gsl-num">1</div>
+                      <div class="gsl-content">
+                        <div class="gsl-title">Add your target</div>
+                        <div class="gsl-desc">Type a domain in the sidebar (e.g. <code>hackerone.com</code>) and press <kbd>Enter</kbd> or click <strong>+</strong>.</div>
+                      </div>
+                    </div>
+                    <div class="gsl-item">
+                      <div class="gsl-num">2</div>
+                      <div class="gsl-content">
+                        <div class="gsl-title">Run recon</div>
+                        <div class="gsl-desc">Click <span class="guide-cmd">/recon</span> in the quick bar. Discovers subdomains, live hosts, URLs, and runs nuclei automatically.</div>
+                      </div>
+                    </div>
+                    <div class="gsl-item">
+                      <div class="gsl-num">3</div>
+                      <div class="gsl-content">
+                        <div class="gsl-title">Hunt for bugs</div>
+                        <div class="gsl-desc">Click <span class="guide-cmd">/hunt</span>. Auto-selects vuln classes from the tech stack, or pick one from the dropdown (ssrf, idor, xss…).</div>
+                      </div>
+                    </div>
+                    <div class="gsl-item">
+                      <div class="gsl-num">4</div>
+                      <div class="gsl-content">
+                        <div class="gsl-title">Validate the finding</div>
+                        <div class="gsl-desc">Click <span class="guide-cmd">/validate</span>. Walks you through the <strong>7-Question Gate</strong>. Score ≥ 7 = submit, 5–6 = chain first, &lt; 5 = move on.</div>
+                      </div>
+                    </div>
+                    <div class="gsl-item">
+                      <div class="gsl-num">5</div>
+                      <div class="gsl-content">
+                        <div class="gsl-title">Generate report</div>
+                        <div class="gsl-desc">Click <span class="guide-cmd">/report</span> and pick your platform. Creates H1 / Bugcrowd / Intigriti Markdown + JSON.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 7-Question Gate -->
+              <div class="guide-card">
+                <div class="gc-head">🎯 The 7-Question Gate</div>
+                <div class="gc-body">
+                  <p class="gc-intro">Runs before every report. Kills weak findings before they hurt your validity ratio.</p>
+                  <div class="gate-table">
+                    <div class="gt-row gt-head">
+                      <div class="gt-q">Question</div><div class="gt-w">Weight</div>
+                    </div>
+                    <div class="gt-row"><div class="gt-q">Q1 — Is this triggerable RIGHT NOW by an external attacker?</div><div class="gt-w gt-pts">0–2</div></div>
+                    <div class="gt-row"><div class="gt-q">Q2 — Does victim interaction make it realistic?</div><div class="gt-w gt-pts">0–2</div></div>
+                    <div class="gt-row"><div class="gt-q">Q3 — Is there concrete security impact? (ATO, RCE, data exfil…)</div><div class="gt-w gt-pts">0–2</div></div>
+                    <div class="gt-row"><div class="gt-q">Q4 — Is the asset clearly in scope?</div><div class="gt-w gt-pts">0–2</div></div>
+                    <div class="gt-row"><div class="gt-q">Q5 — Do you have a reproducible PoC?</div><div class="gt-w gt-pts">0–1</div></div>
+                    <div class="gt-row"><div class="gt-q">Q6 — Is this NOT already known or patched?</div><div class="gt-w gt-pts">0–1</div></div>
+                    <div class="gt-row"><div class="gt-q">Q7 — Does the impact justify writing a report?</div><div class="gt-w gt-pts">0–1</div></div>
+                  </div>
+                  <div class="gate-verdicts">
+                    <div class="gv-item gv-submit">Score ≥ 7 → SUBMIT</div>
+                    <div class="gv-item gv-chain">Score 5–6 → CHAIN first</div>
+                    <div class="gv-item gv-kill">Score &lt; 5 → KILL it</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+            <div class="guide-col">
+
+              <!-- All commands -->
+              <div class="guide-card">
+                <div class="gc-head">⚡ All Commands</div>
+                <div class="gc-body">
+                  <div class="cmd-ref">
+                    <div class="cr-section">Core</div>
+                    <div class="cr-row"><span class="guide-cmd">/recon</span><span class="cr-desc">Subdomain enum → live hosts → URL crawl → nuclei</span></div>
+                    <div class="cr-row"><span class="guide-cmd">/hunt</span><span class="cr-desc">Targeted vuln checks. Add <code>--vuln-class ssrf</code> to focus</span></div>
+                    <div class="cr-row"><span class="guide-cmd">/validate</span><span class="cr-desc">Full 7-Question Gate with interactive scoring</span></div>
+                    <div class="cr-row"><span class="guide-cmd">/report</span><span class="cr-desc">Submit-ready report for HackerOne, Bugcrowd, Intigriti</span></div>
+                    <div class="cr-section">Intelligence</div>
+                    <div class="cr-row"><span class="guide-cmd">/intel</span><span class="cr-desc">CVEs + disclosed HackerOne reports for this target</span></div>
+                    <div class="cr-row"><span class="guide-cmd">/surface</span><span class="cr-desc">Ranked attack surface from recon data</span></div>
+                    <div class="cr-row"><span class="guide-cmd">/pickup</span><span class="cr-desc">Resume previous hunt — history + untested endpoints</span></div>
+                    <div class="cr-section">Triage & Chain</div>
+                    <div class="cr-row"><span class="guide-cmd">/triage</span><span class="cr-desc">Quick 3-question go/no-go before full gate</span></div>
+                    <div class="cr-row"><span class="guide-cmd">/chain</span><span class="cr-desc">Find A→B→C chains. 17 patterns (SSRF→RCE, XSS→ATO…)</span></div>
+                    <div class="cr-row"><span class="guide-cmd">/scope</span><span class="cr-desc">Verify an asset is in scope before touching it</span></div>
+                    <div class="cr-section">Automation</div>
+                    <div class="cr-row"><span class="guide-cmd">/autopilot</span><span class="cr-desc">Full autonomous loop: scope→recon→hunt→validate→report</span></div>
+                    <div class="cr-row"><span class="guide-cmd">/remember</span><span class="cr-desc">Log finding to persistent hunt journal</span></div>
+                    <div class="cr-section">Web3</div>
+                    <div class="cr-row"><span class="guide-cmd">/web3-audit</span><span class="cr-desc">Slither + Mythril + 12-class pattern scan on .sol file</span></div>
+                    <div class="cr-row"><span class="guide-cmd">/token-scan</span><span class="cr-desc">Rug-pull &amp; honeypot detection for EVM + Solana</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Keyboard shortcuts -->
+              <div class="guide-card">
+                <div class="gc-head">⌨️ Keyboard Shortcuts</div>
+                <div class="gc-body">
+                  <div class="shortcut-table">
+                    <div class="st-row"><kbd class="guide-kbd">Ctrl K</kbd><span>Open command palette</span></div>
+                    <div class="st-row"><kbd class="guide-kbd">Ctrl Enter</kbd><span>Run selected command</span></div>
+                    <div class="st-row"><kbd class="guide-kbd">Ctrl L</kbd><span>Clear terminal output</span></div>
+                    <div class="st-row"><kbd class="guide-kbd">Esc</kbd><span>Close any modal / palette</span></div>
+                    <div class="st-row"><kbd class="guide-kbd">1</kbd><span>Switch to Terminal tab</span></div>
+                    <div class="st-row"><kbd class="guide-kbd">2</kbd><span>Switch to Findings tab</span></div>
+                    <div class="st-row"><kbd class="guide-kbd">3</kbd><span>Switch to Stats tab</span></div>
+                    <div class="st-row"><kbd class="guide-kbd">4</kbd><span>Switch to Reports tab</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tips -->
+              <div class="guide-card">
+                <div class="gc-head">💡 Pro Tips</div>
+                <div class="gc-body">
+                  <div class="tips-list">
+                    <div class="tip-item"><span class="tip-icon">🔗</span><div><strong>Chain low-severity bugs</strong> — a Medium SSRF + IDOR can become a Critical. Run <span class="guide-cmd">/chain</span> before giving up on a finding.</div></div>
+                    <div class="tip-item"><span class="tip-icon">⚡</span><div><strong>Use autopilot on new targets</strong> — <code>/autopilot target.com --mode normal</code> does the full loop while you review at each step.</div></div>
+                    <div class="tip-item"><span class="tip-icon">📖</span><div><strong>Run /intel first</strong> — knowing what CVEs and past disclosures exist tells you where to focus before spending time on recon.</div></div>
+                    <div class="tip-item"><span class="tip-icon">🚫</span><div><strong>Never-submit list</strong> — self-XSS, missing security headers, rate-limit on non-critical endpoints, clickjacking on static pages. These are always rejected.</div></div>
+                    <div class="tip-item"><span class="tip-icon">📊</span><div><strong>Check the Stats tab</strong> after each hunt — the severity bar and nuclei findings list shows you the most promising attack surface at a glance.</div></div>
+                    <div class="tip-item"><span class="tip-icon">📋</span><div><strong>Export findings as CSV</strong> — paste directly into your notes or share with a team member from the Findings tab.</div></div>
+                    <div class="tip-item"><span class="tip-icon">🎯</span><div><strong>5-minute rule</strong> — if you're getting nothing on an endpoint after 5 minutes, move on. Use <span class="guide-cmd">/surface</span> to find the next best place to look.</div></div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
 <!-- Command Palette -->
 <div id="palette-overlay" onclick="closePalette(event)">
   <div id="palette">
@@ -269,6 +440,40 @@
     <div class="modal-foot">
       <button class="btn" onclick="copyFinding()">📋 Copy JSON</button>
       <button class="btn btn-run" onclick="runReportForFinding()">📄 Generate Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- Welcome Modal (first visit) -->
+<div id="welcome-overlay">
+  <div id="welcome-modal">
+    <div class="wm-glow"></div>
+    <div class="wm-head">
+      <div class="wm-logo"><div class="logo-mark" style="width:40px;height:40px;font-size:22px;border-radius:10px">B</div></div>
+      <h2 class="wm-title">Welcome to claudebbp</h2>
+      <p class="wm-sub">AI-powered bug bounty automation</p>
+    </div>
+    <div class="wm-body">
+      <div class="wm-path">
+        <div class="wmp-step wmp-1"><div class="wmp-icon">🔍</div><div class="wmp-cmd">/recon</div><div class="wmp-desc">Map the target</div></div>
+        <div class="wmp-arrow">→</div>
+        <div class="wmp-step wmp-2"><div class="wmp-icon">🎯</div><div class="wmp-cmd">/hunt</div><div class="wmp-desc">Find bugs</div></div>
+        <div class="wmp-arrow">→</div>
+        <div class="wmp-step wmp-3"><div class="wmp-icon">✅</div><div class="wmp-cmd">/validate</div><div class="wmp-desc">Gate check</div></div>
+        <div class="wmp-arrow">→</div>
+        <div class="wmp-step wmp-4"><div class="wmp-icon">📄</div><div class="wmp-cmd">/report</div><div class="wmp-desc">Submit</div></div>
+      </div>
+      <div class="wm-tips">
+        <div class="wmt-item"><span>⌘</span><span>Press <strong>Ctrl+K</strong> to open the command palette from anywhere</span></div>
+        <div class="wmt-item"><span>🎯</span><span>Add a target in the left sidebar to get started</span></div>
+        <div class="wmt-item"><span>📖</span><span>Open the <strong>Guide</strong> tab for the full reference and tips</span></div>
+      </div>
+    </div>
+    <div class="wm-foot">
+      <label class="wm-check">
+        <input type="checkbox" id="dontShow"/> Don't show this again
+      </label>
+      <button class="btn btn-run" onclick="closeWelcome()" style="padding:9px 28px">Start Hunting →</button>
     </div>
   </div>
 </div>
