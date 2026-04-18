@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>claudebbp — Bug Bounty Dashboard</title>
+<title>claudebbp — Scanner Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap"/>
 <link rel="stylesheet" href="/static/style.css"/>
@@ -18,12 +18,7 @@
       claudebbp
     </div>
     <div class="header-div"></div>
-    <button class="nav-btn" onclick="openPalette()">
-      ⌘ Command Palette <span class="kbd">Ctrl K</span>
-    </button>
-    <button class="nav-btn" onclick="switchTab('guide')">
-      📖 Guide
-    </button>
+    <span class="header-tag">Scanner Dashboard</span>
     <div class="h-spacer"></div>
     <div class="status-pill">
       <div class="status-dot" id="statusDot"></div>
@@ -51,48 +46,84 @@
     <!-- Main -->
     <main>
       <div class="tabs">
-        <div class="tab active" id="tab-terminal" onclick="switchTab('terminal')">
-          ⚡ Terminal
+        <div class="tab active" id="tab-dashboard" onclick="switchTab('dashboard')">Dashboard</div>
+        <div class="tab" id="tab-recon" onclick="switchTab('recon')">
+          Recon <div class="badge-dot" id="dot-recon"></div>
         </div>
-        <div class="tab" id="tab-findings" onclick="switchTab('findings')">
-          🎯 Findings <div class="badge-dot" id="dot-findings"></div>
+        <div class="tab" id="tab-vulns" onclick="switchTab('vulns')">
+          Vulnerabilities <div class="badge-dot" id="dot-vulns"></div>
         </div>
-        <div class="tab" id="tab-stats" onclick="switchTab('stats')">
-          📊 Stats
+        <div class="tab" id="tab-terminal" onclick="switchTab('terminal')">Terminal</div>
+      </div>
+
+      <!-- ── Dashboard ── -->
+      <div class="panel active" id="panel-dashboard">
+        <div class="dash-panel" id="dashContent">
+          <div class="empty" style="flex:1">
+            <div class="e-icon">🎯</div>
+            <div class="e-msg">Add a target and hit Scan to begin</div>
+          </div>
         </div>
-        <div class="tab" id="tab-reports" onclick="switchTab('reports')">
-          📄 Reports
+      </div>
+
+      <!-- ── Recon ── -->
+      <div class="panel" id="panel-recon">
+        <div class="recon-panel" id="reconContent">
+          <div class="empty" style="flex:1">
+            <div class="e-icon">🔍</div>
+            <div class="e-msg">Select a target and run a scan</div>
+          </div>
         </div>
-        <div class="tab" id="tab-guide" onclick="switchTab('guide')">
-          📖 Guide
+      </div>
+
+      <!-- ── Vulnerabilities ── -->
+      <div class="panel" id="panel-vulns">
+        <div class="vulns-panel">
+          <div class="vulns-toolbar">
+            <div class="search-box">
+              <span class="search-icon">🔍</span>
+              <input id="vulnSearch" type="text" placeholder="Search vulnerabilities…" oninput="renderVulns()"/>
+            </div>
+            <div class="sev-filters">
+              <button class="f-btn all active" id="f-all"      onclick="filterSev('all')">All</button>
+              <button class="f-btn fc"          id="f-critical" onclick="filterSev('critical')">Critical</button>
+              <button class="f-btn fh"          id="f-high"     onclick="filterSev('high')">High</button>
+              <button class="f-btn fm"          id="f-medium"   onclick="filterSev('medium')">Medium</button>
+              <button class="f-btn fl"          id="f-low"      onclick="filterSev('low')">Low</button>
+            </div>
+            <div class="export-btns">
+              <button class="btn btn-sm" onclick="exportVulns('json')">⬇ JSON</button>
+              <button class="btn btn-sm" onclick="exportVulns('csv')">⬇ CSV</button>
+            </div>
+            <span class="f-meta" id="vulnCount">0 findings</span>
+          </div>
+          <div class="vulns-list" id="vulnsList">
+            <div class="empty" style="flex:1">
+              <div class="e-icon">🎯</div>
+              <div class="e-msg">Select a target to view findings</div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- ── Terminal ── -->
-      <div class="panel active" id="panel-terminal">
+      <div class="panel" id="panel-terminal">
         <div class="term-panel">
-
-          <!-- Toolbar -->
           <div class="term-toolbar">
-            <input class="tt-target" id="cmdTarget" placeholder="target.com" />
+            <input class="tt-target" id="cmdTarget" placeholder="target.com"/>
             <select class="tt-select" id="cmdSelect" onchange="onCmdChange()">
               <option value="/recon">/recon</option>
               <option value="/hunt">/hunt</option>
-              <option value="/validate">/validate</option>
-              <option value="/report">/report</option>
               <option value="/intel">/intel</option>
-              <option value="/triage">/triage</option>
+              <option value="/surface">/surface</option>
+              <option value="/validate">/validate</option>
               <option value="/chain">/chain</option>
               <option value="/scope">/scope</option>
-              <option value="/surface">/surface</option>
               <option value="/pickup">/pickup</option>
               <option value="/autopilot">/autopilot</option>
               <option value="/web3-audit">/web3-audit</option>
               <option value="/token-scan">/token-scan</option>
-              <option value="/remember">/remember</option>
             </select>
-
-            <!-- Contextual extras -->
             <select class="tt-select" id="vcSelect" style="display:none">
               <option value="">auto</option>
               <option value="idor">idor</option>
@@ -105,42 +136,28 @@
               <option value="secrets">secrets</option>
               <option value="subdomain-takeover">subdomain-takeover</option>
             </select>
-            <select class="tt-select" id="platSelect" style="display:none">
-              <option value="hackerone">HackerOne</option>
-              <option value="bugcrowd">Bugcrowd</option>
-              <option value="intigriti">Intigriti</option>
-            </select>
             <select class="tt-select" id="modeSelect" style="display:none">
               <option value="normal">normal</option>
               <option value="paranoid">paranoid</option>
-              <option value="yolo">yolo 🔥</option>
             </select>
-
             <div class="tt-div"></div>
             <button class="btn btn-run" id="runBtn" onclick="runCommand()">▶ Run</button>
-            <button class="btn btn-icon" onclick="clearTerminal()" title="Clear terminal">🗑</button>
-            <button class="btn btn-icon" onclick="copyTerminal()" title="Copy output">📋</button>
+            <button class="btn btn-icon" onclick="clearTerminal()" title="Clear">🗑</button>
+            <button class="btn btn-icon" onclick="copyTerminal()" title="Copy">📋</button>
           </div>
-
-          <!-- Quick commands -->
           <div class="quick-row">
-            <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px">Quick:</span>
-            <button class="qcmd" id="qc-recon"    onclick="quickRun('/recon')">/recon</button>
-            <button class="qcmd" id="qc-hunt"     onclick="quickRun('/hunt')">/hunt</button>
-            <button class="qcmd" id="qc-intel"    onclick="quickRun('/intel')">/intel</button>
-            <button class="qcmd" id="qc-surface"  onclick="quickRun('/surface')">/surface</button>
-            <button class="qcmd" id="qc-validate" onclick="quickRun('/validate')">/validate</button>
-            <button class="qcmd" id="qc-chain"    onclick="quickRun('/chain')">/chain</button>
-            <button class="qcmd" id="qc-report"   onclick="quickRun('/report')">/report</button>
-            <button class="qcmd" id="qc-pickup"   onclick="quickRun('/pickup')">/pickup</button>
+            <span class="q-label">Quick:</span>
+            <button class="qcmd" onclick="quickRun('/recon')">/recon</button>
+            <button class="qcmd" onclick="quickRun('/hunt')">/hunt</button>
+            <button class="qcmd" onclick="quickRun('/intel')">/intel</button>
+            <button class="qcmd" onclick="quickRun('/surface')">/surface</button>
+            <button class="qcmd" onclick="quickRun('/validate')">/validate</button>
+            <button class="qcmd" onclick="quickRun('/chain')">/chain</button>
+            <button class="qcmd" onclick="quickRun('/pickup')">/pickup</button>
           </div>
-
-          <!-- Terminal window -->
           <div class="terminal">
             <div class="term-bar">
-              <div class="dot dot-r"></div>
-              <div class="dot dot-y"></div>
-              <div class="dot dot-g"></div>
+              <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
               <div class="term-title" id="termTitle">claudebbp terminal</div>
               <div class="term-actions">
                 <button class="term-btn" onclick="copyTerminal()">copy</button>
@@ -148,92 +165,11 @@
               </div>
             </div>
             <div class="term-body" id="termBody">
-              <div class="t-row t-dim"><span class="t-txt">  ██████╗██╗      █████╗ ██╗   ██╗██████╗ ███████╗██████╗ ██████╗ ██████╗</span></div>
-              <div class="t-row t-dim"><span class="t-txt"> ██╔════╝██║     ██╔══██╗██║   ██║██╔══██╗██╔════╝██╔══██╗██╔══██╗██╔══██╗</span></div>
-              <div class="t-row t-dim"><span class="t-txt"> ██║     ██║     ███████║██║   ██║██║  ██║█████╗  ██████╔╝██████╔╝██████╔╝</span></div>
-              <div class="t-row t-dim"><span class="t-txt"> ██║     ██║     ██╔══██║██║   ██║██║  ██║██╔══╝  ██╔══██╗██╔══██╗██╔═══╝</span></div>
-              <div class="t-row t-dim"><span class="t-txt"> ╚██████╗███████╗██║  ██║╚██████╔╝██████╔╝███████╗██████╔╝██████╔╝██║</span></div>
-              <div class="t-row t-dim"><span class="t-txt">  ╚═════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝╚═════╝ ╚═════╝ ╚═╝  v4.2.1</span></div>
-              <div class="t-row"><span class="t-txt"> </span></div>
-              <div class="t-row t-info"><span class="t-txt">  Bug Bounty Automation · recon → hunt → validate → report</span></div>
-              <div class="t-row t-dim"><span class="t-txt">  Select a target from the sidebar or type one above, then hit ▶ Run</span></div>
-              <div class="t-row t-dim"><span class="t-txt">  Press Ctrl+K to open the command palette</span></div>
+              <div class="t-row t-dim"><span class="t-txt">  claudebbp — Bug Bounty Scanner</span></div>
+              <div class="t-row t-dim"><span class="t-txt">  Add a target in the sidebar, then run /recon → /hunt</span></div>
               <div class="t-row"><span class="t-txt"> </span></div>
             </div>
             <span class="term-cursor" id="cursor" style="display:none"></span>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- ── Findings ── -->
-      <div class="panel" id="panel-findings">
-        <div class="find-panel">
-          <div class="find-toolbar">
-            <div class="search-box">
-              <span class="search-icon">🔍</span>
-              <input id="searchInput" type="text" placeholder="Search findings…" oninput="renderFindings()"/>
-            </div>
-            <div class="sev-filters">
-              <button class="f-btn all active" id="f-all"      onclick="filterSev('all')">All</button>
-              <button class="f-btn fc"          id="f-critical" onclick="filterSev('critical')">Critical</button>
-              <button class="f-btn fh"          id="f-high"     onclick="filterSev('high')">High</button>
-              <button class="f-btn fm"          id="f-medium"   onclick="filterSev('medium')">Medium</button>
-              <button class="f-btn fl"          id="f-low"      onclick="filterSev('low')">Low</button>
-            </div>
-            <div class="export-btns">
-              <button class="btn btn-sm" onclick="exportFindings('json')">⬇ JSON</button>
-              <button class="btn btn-sm" onclick="exportFindings('csv')">⬇ CSV</button>
-            </div>
-            <span class="f-meta" id="findCount">0 findings</span>
-          </div>
-
-          <div class="find-table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th onclick="sortFindings('id')">ID ⇅</th>
-                  <th onclick="sortFindings('severity')">Severity ⇅</th>
-                  <th>Title</th>
-                  <th onclick="sortFindings('vuln_class')">Class ⇅</th>
-                  <th>URL</th>
-                  <th onclick="sortFindings('gate_score')">Gate ⇅</th>
-                  <th>Verdict</th>
-                </tr>
-              </thead>
-              <tbody id="findTbody">
-                <tr><td colspan="7" style="text-align:center;padding:50px;color:var(--text3)">
-                  Select a target to view findings
-                </td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── Stats ── -->
-      <div class="panel" id="panel-stats">
-        <div class="stats-panel">
-          <div id="statsContent">
-            <div class="empty"><div class="e-icon">📊</div><div class="e-msg">Select a target to view stats</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── Reports ── -->
-      <div class="panel" id="panel-reports">
-        <div class="rep-panel">
-          <div class="rep-list" id="repList">
-            <div class="empty" style="padding:30px 0">
-              <div class="e-icon">📄</div>
-              <div class="e-sub">No reports yet</div>
-            </div>
-          </div>
-          <div class="rep-preview" id="repPreview">
-            <div class="empty">
-              <div class="e-icon">👈</div>
-              <div class="e-msg">Select a report to preview</div>
-            </div>
           </div>
         </div>
       </div>
@@ -241,245 +177,24 @@
     </main>
   </div>
 
-  <!-- Keyboard shortcut bar -->
-  <div class="kbd-bar">
-    <div class="kbd-item"><span class="kbd">Ctrl K</span> Command palette</div>
-    <div class="kbd-item"><span class="kbd">Ctrl Enter</span> Run command</div>
-    <div class="kbd-item"><span class="kbd">Ctrl L</span> Clear terminal</div>
-    <div class="kbd-item"><span class="kbd">Esc</span> Close modal</div>
-    <div class="kbd-item"><span class="kbd">1–4</span> Switch tabs</div>
-  </div>
-</div>
-
-      <!-- ── Guide ── -->
-      <div class="panel" id="panel-guide">
-        <div class="guide-panel">
-
-          <!-- Hero -->
-          <div class="guide-hero">
-            <div class="guide-hero-inner">
-              <div class="guide-logo-big">B</div>
-              <div>
-                <h1 class="guide-h1">claudebbp <span class="guide-version">v4.2</span></h1>
-                <p class="guide-tagline">AI-powered bug bounty automation — recon to report in one workflow</p>
-              </div>
-            </div>
-            <div class="guide-path">
-              <div class="gp-step"><div class="gp-num">1</div><div class="gp-label">/recon</div><div class="gp-sub">Map target</div></div>
-              <div class="gp-arrow">→</div>
-              <div class="gp-step"><div class="gp-num">2</div><div class="gp-label">/hunt</div><div class="gp-sub">Find bugs</div></div>
-              <div class="gp-arrow">→</div>
-              <div class="gp-step"><div class="gp-num">3</div><div class="gp-label">/validate</div><div class="gp-sub">Gate check</div></div>
-              <div class="gp-arrow">→</div>
-              <div class="gp-step"><div class="gp-num">4</div><div class="gp-label">/report</div><div class="gp-sub">Submit</div></div>
-            </div>
-          </div>
-
-          <div class="guide-body">
-            <div class="guide-col">
-
-              <!-- Quick start -->
-              <div class="guide-card">
-                <div class="gc-head">🚀 Quick Start (5 minutes)</div>
-                <div class="gc-body">
-                  <div class="guide-step-list">
-                    <div class="gsl-item">
-                      <div class="gsl-num">1</div>
-                      <div class="gsl-content">
-                        <div class="gsl-title">Add your target</div>
-                        <div class="gsl-desc">Type a domain in the sidebar (e.g. <code>hackerone.com</code>) and press <kbd>Enter</kbd> or click <strong>+</strong>.</div>
-                      </div>
-                    </div>
-                    <div class="gsl-item">
-                      <div class="gsl-num">2</div>
-                      <div class="gsl-content">
-                        <div class="gsl-title">Run recon</div>
-                        <div class="gsl-desc">Click <span class="guide-cmd">/recon</span> in the quick bar. Discovers subdomains, live hosts, URLs, and runs nuclei automatically.</div>
-                      </div>
-                    </div>
-                    <div class="gsl-item">
-                      <div class="gsl-num">3</div>
-                      <div class="gsl-content">
-                        <div class="gsl-title">Hunt for bugs</div>
-                        <div class="gsl-desc">Click <span class="guide-cmd">/hunt</span>. Auto-selects vuln classes from the tech stack, or pick one from the dropdown (ssrf, idor, xss…).</div>
-                      </div>
-                    </div>
-                    <div class="gsl-item">
-                      <div class="gsl-num">4</div>
-                      <div class="gsl-content">
-                        <div class="gsl-title">Validate the finding</div>
-                        <div class="gsl-desc">Click <span class="guide-cmd">/validate</span>. Walks you through the <strong>7-Question Gate</strong>. Score ≥ 7 = submit, 5–6 = chain first, &lt; 5 = move on.</div>
-                      </div>
-                    </div>
-                    <div class="gsl-item">
-                      <div class="gsl-num">5</div>
-                      <div class="gsl-content">
-                        <div class="gsl-title">Generate report</div>
-                        <div class="gsl-desc">Click <span class="guide-cmd">/report</span> and pick your platform. Creates H1 / Bugcrowd / Intigriti Markdown + JSON.</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 7-Question Gate -->
-              <div class="guide-card">
-                <div class="gc-head">🎯 The 7-Question Gate</div>
-                <div class="gc-body">
-                  <p class="gc-intro">Runs before every report. Kills weak findings before they hurt your validity ratio.</p>
-                  <div class="gate-table">
-                    <div class="gt-row gt-head">
-                      <div class="gt-q">Question</div><div class="gt-w">Weight</div>
-                    </div>
-                    <div class="gt-row"><div class="gt-q">Q1 — Is this triggerable RIGHT NOW by an external attacker?</div><div class="gt-w gt-pts">0–2</div></div>
-                    <div class="gt-row"><div class="gt-q">Q2 — Does victim interaction make it realistic?</div><div class="gt-w gt-pts">0–2</div></div>
-                    <div class="gt-row"><div class="gt-q">Q3 — Is there concrete security impact? (ATO, RCE, data exfil…)</div><div class="gt-w gt-pts">0–2</div></div>
-                    <div class="gt-row"><div class="gt-q">Q4 — Is the asset clearly in scope?</div><div class="gt-w gt-pts">0–2</div></div>
-                    <div class="gt-row"><div class="gt-q">Q5 — Do you have a reproducible PoC?</div><div class="gt-w gt-pts">0–1</div></div>
-                    <div class="gt-row"><div class="gt-q">Q6 — Is this NOT already known or patched?</div><div class="gt-w gt-pts">0–1</div></div>
-                    <div class="gt-row"><div class="gt-q">Q7 — Does the impact justify writing a report?</div><div class="gt-w gt-pts">0–1</div></div>
-                  </div>
-                  <div class="gate-verdicts">
-                    <div class="gv-item gv-submit">Score ≥ 7 → SUBMIT</div>
-                    <div class="gv-item gv-chain">Score 5–6 → CHAIN first</div>
-                    <div class="gv-item gv-kill">Score &lt; 5 → KILL it</div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-            <div class="guide-col">
-
-              <!-- All commands -->
-              <div class="guide-card">
-                <div class="gc-head">⚡ All Commands</div>
-                <div class="gc-body">
-                  <div class="cmd-ref">
-                    <div class="cr-section">Core</div>
-                    <div class="cr-row"><span class="guide-cmd">/recon</span><span class="cr-desc">Subdomain enum → live hosts → URL crawl → nuclei</span></div>
-                    <div class="cr-row"><span class="guide-cmd">/hunt</span><span class="cr-desc">Targeted vuln checks. Add <code>--vuln-class ssrf</code> to focus</span></div>
-                    <div class="cr-row"><span class="guide-cmd">/validate</span><span class="cr-desc">Full 7-Question Gate with interactive scoring</span></div>
-                    <div class="cr-row"><span class="guide-cmd">/report</span><span class="cr-desc">Submit-ready report for HackerOne, Bugcrowd, Intigriti</span></div>
-                    <div class="cr-section">Intelligence</div>
-                    <div class="cr-row"><span class="guide-cmd">/intel</span><span class="cr-desc">CVEs + disclosed HackerOne reports for this target</span></div>
-                    <div class="cr-row"><span class="guide-cmd">/surface</span><span class="cr-desc">Ranked attack surface from recon data</span></div>
-                    <div class="cr-row"><span class="guide-cmd">/pickup</span><span class="cr-desc">Resume previous hunt — history + untested endpoints</span></div>
-                    <div class="cr-section">Triage & Chain</div>
-                    <div class="cr-row"><span class="guide-cmd">/triage</span><span class="cr-desc">Quick 3-question go/no-go before full gate</span></div>
-                    <div class="cr-row"><span class="guide-cmd">/chain</span><span class="cr-desc">Find A→B→C chains. 17 patterns (SSRF→RCE, XSS→ATO…)</span></div>
-                    <div class="cr-row"><span class="guide-cmd">/scope</span><span class="cr-desc">Verify an asset is in scope before touching it</span></div>
-                    <div class="cr-section">Automation</div>
-                    <div class="cr-row"><span class="guide-cmd">/autopilot</span><span class="cr-desc">Full autonomous loop: scope→recon→hunt→validate→report</span></div>
-                    <div class="cr-row"><span class="guide-cmd">/remember</span><span class="cr-desc">Log finding to persistent hunt journal</span></div>
-                    <div class="cr-section">Web3</div>
-                    <div class="cr-row"><span class="guide-cmd">/web3-audit</span><span class="cr-desc">Slither + Mythril + 12-class pattern scan on .sol file</span></div>
-                    <div class="cr-row"><span class="guide-cmd">/token-scan</span><span class="cr-desc">Rug-pull &amp; honeypot detection for EVM + Solana</span></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Keyboard shortcuts -->
-              <div class="guide-card">
-                <div class="gc-head">⌨️ Keyboard Shortcuts</div>
-                <div class="gc-body">
-                  <div class="shortcut-table">
-                    <div class="st-row"><kbd class="guide-kbd">Ctrl K</kbd><span>Open command palette</span></div>
-                    <div class="st-row"><kbd class="guide-kbd">Ctrl Enter</kbd><span>Run selected command</span></div>
-                    <div class="st-row"><kbd class="guide-kbd">Ctrl L</kbd><span>Clear terminal output</span></div>
-                    <div class="st-row"><kbd class="guide-kbd">Esc</kbd><span>Close any modal / palette</span></div>
-                    <div class="st-row"><kbd class="guide-kbd">1</kbd><span>Switch to Terminal tab</span></div>
-                    <div class="st-row"><kbd class="guide-kbd">2</kbd><span>Switch to Findings tab</span></div>
-                    <div class="st-row"><kbd class="guide-kbd">3</kbd><span>Switch to Stats tab</span></div>
-                    <div class="st-row"><kbd class="guide-kbd">4</kbd><span>Switch to Reports tab</span></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Tips -->
-              <div class="guide-card">
-                <div class="gc-head">💡 Pro Tips</div>
-                <div class="gc-body">
-                  <div class="tips-list">
-                    <div class="tip-item"><span class="tip-icon">🔗</span><div><strong>Chain low-severity bugs</strong> — a Medium SSRF + IDOR can become a Critical. Run <span class="guide-cmd">/chain</span> before giving up on a finding.</div></div>
-                    <div class="tip-item"><span class="tip-icon">⚡</span><div><strong>Use autopilot on new targets</strong> — <code>/autopilot target.com --mode normal</code> does the full loop while you review at each step.</div></div>
-                    <div class="tip-item"><span class="tip-icon">📖</span><div><strong>Run /intel first</strong> — knowing what CVEs and past disclosures exist tells you where to focus before spending time on recon.</div></div>
-                    <div class="tip-item"><span class="tip-icon">🚫</span><div><strong>Never-submit list</strong> — self-XSS, missing security headers, rate-limit on non-critical endpoints, clickjacking on static pages. These are always rejected.</div></div>
-                    <div class="tip-item"><span class="tip-icon">📊</span><div><strong>Check the Stats tab</strong> after each hunt — the severity bar and nuclei findings list shows you the most promising attack surface at a glance.</div></div>
-                    <div class="tip-item"><span class="tip-icon">📋</span><div><strong>Export findings as CSV</strong> — paste directly into your notes or share with a team member from the Findings tab.</div></div>
-                    <div class="tip-item"><span class="tip-icon">🎯</span><div><strong>5-minute rule</strong> — if you're getting nothing on an endpoint after 5 minutes, move on. Use <span class="guide-cmd">/surface</span> to find the next best place to look.</div></div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
+  <!-- Vuln detail modal -->
+  <div id="modal-overlay" onclick="closeModal(event)">
+    <div id="modal">
+      <div class="modal-head">
+        <span id="modal-badge"></span>
+        <span class="modal-title" id="modal-title">Finding Detail</span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
-
-<!-- Command Palette -->
-<div id="palette-overlay" onclick="closePalette(event)">
-  <div id="palette">
-    <div class="pal-head">
-      <span class="pal-icon">⌘</span>
-      <input id="palInput" placeholder="Type a command…" oninput="filterPalette()" onkeydown="palKey(event)" autocomplete="off"/>
-      <span class="pal-hint">↑↓ navigate · Enter run · Esc close</span>
-    </div>
-    <div class="pal-list" id="palList"></div>
-  </div>
-</div>
-
-<!-- Finding Detail Modal -->
-<div id="modal-overlay" onclick="closeModal(event)">
-  <div id="modal">
-    <div class="modal-head">
-      <span id="modal-badge"></span>
-      <span class="modal-title" id="modal-title">Finding Detail</span>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-body" id="modal-body"></div>
-    <div class="modal-foot">
-      <button class="btn" onclick="copyFinding()">📋 Copy JSON</button>
-      <button class="btn btn-run" onclick="runReportForFinding()">📄 Generate Report</button>
-    </div>
-  </div>
-</div>
-
-<!-- Welcome Modal (first visit) -->
-<div id="welcome-overlay">
-  <div id="welcome-modal">
-    <div class="wm-glow"></div>
-    <div class="wm-head">
-      <div class="wm-logo"><div class="logo-mark" style="width:40px;height:40px;font-size:22px;border-radius:10px">B</div></div>
-      <h2 class="wm-title">Welcome to claudebbp</h2>
-      <p class="wm-sub">AI-powered bug bounty automation</p>
-    </div>
-    <div class="wm-body">
-      <div class="wm-path">
-        <div class="wmp-step wmp-1"><div class="wmp-icon">🔍</div><div class="wmp-cmd">/recon</div><div class="wmp-desc">Map the target</div></div>
-        <div class="wmp-arrow">→</div>
-        <div class="wmp-step wmp-2"><div class="wmp-icon">🎯</div><div class="wmp-cmd">/hunt</div><div class="wmp-desc">Find bugs</div></div>
-        <div class="wmp-arrow">→</div>
-        <div class="wmp-step wmp-3"><div class="wmp-icon">✅</div><div class="wmp-cmd">/validate</div><div class="wmp-desc">Gate check</div></div>
-        <div class="wmp-arrow">→</div>
-        <div class="wmp-step wmp-4"><div class="wmp-icon">📄</div><div class="wmp-cmd">/report</div><div class="wmp-desc">Submit</div></div>
-      </div>
-      <div class="wm-tips">
-        <div class="wmt-item"><span>⌘</span><span>Press <strong>Ctrl+K</strong> to open the command palette from anywhere</span></div>
-        <div class="wmt-item"><span>🎯</span><span>Add a target in the left sidebar to get started</span></div>
-        <div class="wmt-item"><span>📖</span><span>Open the <strong>Guide</strong> tab for the full reference and tips</span></div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-foot">
+        <button class="btn" onclick="copyFinding()">📋 Copy JSON</button>
       </div>
     </div>
-    <div class="wm-foot">
-      <label class="wm-check">
-        <input type="checkbox" id="dontShow"/> Don't show this again
-      </label>
-      <button class="btn btn-run" onclick="closeWelcome()" style="padding:9px 28px">Start Hunting →</button>
-    </div>
   </div>
+
+  <div id="toast-wrap"></div>
+
 </div>
-
-<div id="toast-wrap"></div>
-
 <script src="/static/app.js"></script>
 </body>
 </html>
