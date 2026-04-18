@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>claudebbp — Bug Bounty Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap"/>
+  <link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
+<div id="app">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">B</div>
+      claudebbp
+    </div>
+    <span class="header-meta">Bug Bounty Dashboard</span>
+    <div class="header-sep"></div>
+    <div class="status-dot" id="statusDot" title="Server online"></div>
+    <span class="header-meta" id="headerStats">Loading…</span>
+  </header>
+
+  <div class="body">
+
+    <!-- Sidebar -->
+    <aside>
+      <div class="sidebar-section">Targets</div>
+      <div class="sidebar-add">
+        <input type="text" id="newTarget" placeholder="target.com" maxlength="80"/>
+        <button class="btn-add" onclick="addTarget()" title="Add target">+</button>
+      </div>
+      <div class="target-list" id="targetList">
+        <div class="empty" style="padding:20px 0">
+          <div class="empty-sub">No targets yet</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main>
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('terminal')" id="tab-terminal">⚡ Terminal</div>
+        <div class="tab" onclick="switchTab('findings')"  id="tab-findings">🎯 Findings</div>
+        <div class="tab" onclick="switchTab('stats')"     id="tab-stats">📊 Stats</div>
+        <div class="tab" onclick="switchTab('reports')"   id="tab-reports">📄 Reports</div>
+      </div>
+
+      <!-- Terminal panel -->
+      <div class="panel active" id="panel-terminal">
+        <div class="terminal-wrap">
+
+          <!-- Command bar -->
+          <div class="cmd-bar">
+            <div class="cmd-section">
+              <label>Command</label>
+              <div class="cmd-row">
+                <input type="text" class="cmd-input" id="cmdTarget" placeholder="target.com" style="max-width:160px"/>
+                <select class="cmd-input" id="cmdSelect" style="max-width:160px">
+                  <option value="/recon">recon</option>
+                  <option value="/hunt">hunt</option>
+                  <option value="/validate">validate</option>
+                  <option value="/report">report</option>
+                  <option value="/intel">intel</option>
+                  <option value="/triage">triage</option>
+                  <option value="/chain">chain</option>
+                  <option value="/scope">scope</option>
+                  <option value="/surface">surface</option>
+                  <option value="/pickup">pickup</option>
+                  <option value="/autopilot">autopilot</option>
+                  <option value="/web3-audit">web3-audit</option>
+                  <option value="/token-scan">token-scan</option>
+                </select>
+                <select class="cmd-input" id="vulnClassSelect" style="max-width:130px; display:none">
+                  <option value="">auto</option>
+                  <option value="idor">idor</option>
+                  <option value="xss">xss</option>
+                  <option value="ssrf">ssrf</option>
+                  <option value="sqli">sqli</option>
+                  <option value="oauth">oauth</option>
+                  <option value="rce">rce</option>
+                  <option value="cve">cve</option>
+                  <option value="secrets">secrets</option>
+                  <option value="subdomain-takeover">subdomain-takeover</option>
+                </select>
+                <select class="cmd-input" id="platformSelect" style="max-width:130px; display:none">
+                  <option value="hackerone">HackerOne</option>
+                  <option value="bugcrowd">Bugcrowd</option>
+                  <option value="intigriti">Intigriti</option>
+                </select>
+                <select class="cmd-input" id="modeSelect" style="max-width:110px; display:none">
+                  <option value="normal">normal</option>
+                  <option value="paranoid">paranoid</option>
+                  <option value="yolo">yolo</option>
+                </select>
+                <button class="btn btn-primary" id="runBtn" onclick="runCommand()">▶ Run</button>
+                <button class="btn btn-danger" id="clearBtn" onclick="clearTerminal()">Clear</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick commands -->
+          <div class="quick-cmds" id="quickCmds">
+            <span style="font-size:10px;color:var(--text-dim);align-self:center;letter-spacing:.5px;text-transform:uppercase">Quick:</span>
+            <button class="qcmd" onclick="quickRun('/recon')">/recon</button>
+            <button class="qcmd" onclick="quickRun('/hunt')">/hunt</button>
+            <button class="qcmd" onclick="quickRun('/intel')">/intel</button>
+            <button class="qcmd" onclick="quickRun('/surface')">/surface</button>
+            <button class="qcmd" onclick="quickRun('/validate')">/validate</button>
+            <button class="qcmd" onclick="quickRun('/chain')">/chain</button>
+            <button class="qcmd" onclick="quickRun('/report')">/report</button>
+            <button class="qcmd" onclick="quickRun('/pickup')">/pickup</button>
+          </div>
+
+          <!-- Terminal output -->
+          <div class="terminal" id="terminal">
+            <div class="terminal-header">
+              <div class="dot dot-r"></div>
+              <div class="dot dot-y"></div>
+              <div class="dot dot-g"></div>
+              <div class="terminal-title" id="termTitle">claudebbp terminal</div>
+              <button class="terminal-clear" onclick="clearTerminal()">✕ clear</button>
+            </div>
+            <div id="termOutput">
+              <div class="t-line t-dim">  claudebbp v4.2.0 — Bug Bounty Automation</div>
+              <div class="t-line t-dim">  Select a target from the sidebar, then hit Run.</div>
+              <div class="t-line t-dim">  Golden path: recon → hunt → validate → report</div>
+              <br/>
+            </div>
+            <span class="t-cursor" id="cursor"></span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Findings panel -->
+      <div class="panel" id="panel-findings">
+        <div class="findings-wrap">
+          <div class="findings-toolbar">
+            <div class="filter-group" id="sevFilters">
+              <button class="filter-btn active" onclick="filterFindings('all')" id="f-all">All</button>
+              <button class="filter-btn sev-critical" onclick="filterFindings('critical')" id="f-critical">Critical</button>
+              <button class="filter-btn sev-high"     onclick="filterFindings('high')"     id="f-high">High</button>
+              <button class="filter-btn sev-medium"   onclick="filterFindings('medium')"   id="f-medium">Medium</button>
+              <button class="filter-btn sev-low"      onclick="filterFindings('low')"       id="f-low">Low</button>
+            </div>
+            <span class="findings-count" id="findingsCount">0 findings</span>
+          </div>
+          <div class="findings-table-wrap">
+            <table id="findingsTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Severity</th>
+                  <th>Title</th>
+                  <th>Vuln Class</th>
+                  <th>URL</th>
+                  <th>Gate</th>
+                  <th>Source</th>
+                </tr>
+              </thead>
+              <tbody id="findingsTbody">
+                <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-dim)">
+                  Select a target to view findings
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats panel -->
+      <div class="panel" id="panel-stats">
+        <div class="stats-wrap" id="statsGrid">
+          <div class="empty" style="grid-column:1/-1">
+            <div class="empty-icon">📊</div>
+            <div class="empty-msg">Select a target to view stats</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reports panel -->
+      <div class="panel" id="panel-reports">
+        <div class="reports-wrap">
+          <div class="report-list" id="reportList">
+            <div class="empty" style="padding:20px 0">
+              <div class="empty-sub">No reports yet</div>
+              <div class="empty-sub" style="margin-top:4px">Run /report to generate one</div>
+            </div>
+          </div>
+          <div class="report-preview" id="reportPreview">
+            <div class="empty" style="height:100%">
+              <div class="empty-icon">📄</div>
+              <div class="empty-msg">Select a report to preview</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
