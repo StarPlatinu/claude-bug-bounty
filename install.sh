@@ -55,7 +55,45 @@ if [[ "$setup_burp" =~ ^[Yy]$ ]]; then
     echo ""
 fi
 
-echo "Start hunting:"
-echo "  claude"
+
+# ── Python dependencies for claudebbp CLI ─────────────────────────────────────
+echo "─────────────────────────────────────────────"
+echo "Installing Python dependencies for claudebbp…"
+echo "─────────────────────────────────────────────"
+
+pip install typer rich requests certifi 2>/dev/null || \
+    pip3 install typer rich requests certifi 2>/dev/null || \
+    echo "⚠ pip not found — install manually: pip install typer rich requests certifi"
+
+# Make CLI executable
+if [ -f "claudebbp.py" ]; then
+    chmod +x claudebbp.py
+    echo "✓ claudebbp.py is now executable"
+
+    # Optional: symlink to /usr/local/bin
+    if [ -d "/usr/local/bin" ] && [ -w "/usr/local/bin" ]; then
+        ln -sf "$(pwd)/claudebbp.py" /usr/local/bin/claudebbp
+        echo "✓ Symlinked: claudebbp → /usr/local/bin/claudebbp"
+    else
+        echo "  Add to PATH: export PATH=\"$(pwd):\$PATH\""
+    fi
+fi
+
+# Create state directory
+mkdir -p "${HOME}/.claudebbp/state"
+mkdir -p "${HOME}/.claudebbp/reports"
+mkdir -p "${HOME}/.claudebbp/recon"
+echo "✓ State dirs: ~/.claudebbp/{state,reports,recon}"
+
+echo ""
+echo "Start hunting (CLI mode):"
+echo "  python claudebbp.py /recon target.com"
+echo "  python claudebbp.py /hunt target.com"
+echo "  python claudebbp.py /validate target.com"
+echo "  python claudebbp.py /report target.com"
+echo ""
+echo "Or in Claude Code (slash-command mode):"
 echo "  /recon target.com"
 echo "  /hunt target.com"
+echo "  /validate"
+echo "  /report"

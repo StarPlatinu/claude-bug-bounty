@@ -4,7 +4,7 @@
 
 <div align="center">
 
-<img src="https://img.shields.io/badge/v4.1.0-Bionic_Hunter-blueviolet?style=for-the-badge" alt="v4.1.0">
+<img src="https://img.shields.io/badge/v4.2.0-Full_Stack_Hunter-blueviolet?style=for-the-badge" alt="v4.2.0">
 
 # Claude Bug Bounty
 
@@ -29,9 +29,9 @@
 <br>
 
 ```
-  14 commands  ·  8 AI agents  ·  9 skill domains
-  20 web2 vuln classes  ·  10 web3 bug classes
-  Burp MCP  ·  HackerOne MCP  ·  Autonomous Mode
+  claudebbp CLI  ·  14 commands  ·  8 AI agents  ·  9 skill domains
+  20 web2 vuln classes  ·  10 web3 bug classes  ·  17 chain patterns
+  Burp MCP  ·  HackerOne MCP  ·  Autonomous Mode  ·  7-Question Gate
 ```
 
 </div>
@@ -111,8 +111,9 @@ chmod +x install_tools.sh && ./install_tools.sh   # installs scanning tools (sub
 chmod +x install.sh && ./install.sh               # installs AI skills + commands into Claude Code
 ```
 
-**Step 2 — Start hunting**
+**Step 2 — Start hunting (two ways)**
 
+**Option A — Claude Code slash commands** (recommended)
 ```bash
 claude                          # open Claude Code in your terminal
 
@@ -122,23 +123,25 @@ claude                          # open Claude Code in your terminal
 /report                         # step 4: generate a professional submission report
 ```
 
+**Option B — `claudebbp` CLI** (runs directly in any terminal, no Claude Code needed)
+```bash
+python claudebbp.py /recon target.com
+python claudebbp.py /hunt target.com --vuln-class ssrf
+python claudebbp.py /validate target.com
+python claudebbp.py /report target.com --platform bugcrowd
+```
+
 **That's the core loop.** Four commands, full workflow.
 
 **Step 3 — Go autonomous**
 
 ```bash
-/autopilot target.com --normal  # AI does the whole thing, pauses for your review at the end
+/autopilot target.com --normal                    # Claude Code
+python claudebbp.py /autopilot target.com --mode normal   # CLI
+
 /pickup target.com              # continue where you left off on a previous target
 /intel target.com               # get CVEs + disclosed reports relevant to this target
 ```
-
-<br>
-
-> **Don't use Claude Code?** Run the Python tools directly:
-> ```bash
-> python3 tools/hunt.py --target target.com
-> ./tools/recon_engine.sh target.com
-> ```
 
 <br>
 
@@ -181,6 +184,30 @@ Each step feeds the next. Claude orchestrates all of it, or you run any step on 
 <br>
 
 ---
+
+<br>
+
+## `claudebbp` CLI Reference
+
+Every slash command works both inside Claude Code and from the terminal via `python claudebbp.py`:
+
+```bash
+# Examples
+python claudebbp.py /recon target.com
+python claudebbp.py /hunt target.com --vuln-class idor
+python claudebbp.py /validate target.com
+python claudebbp.py /report target.com --platform intigriti
+python claudebbp.py /autopilot target.com --mode yolo
+python claudebbp.py /chain target.com
+python claudebbp.py /web3-audit contracts/Vault.sol
+python claudebbp.py /token-scan 0xAbCd...
+
+# Or use subcommand style (with autocomplete)
+claudebbp recon target.com
+claudebbp hunt target.com --vuln-class ssrf
+```
+
+State is persisted to `~/.claudebbp/state/<target>.json` — every command shares the same findings, recon data, and scope across sessions.
 
 <br>
 
@@ -238,6 +265,21 @@ Each step feeds the next. Claude orchestrates all of it, or you run any step on 
 <br>
 
 ## What's New
+
+### v4.2.0 — `claudebbp` CLI + Full Core Module (Apr 2026)
+
+- **`claudebbp.py`** — new unified CLI that runs every command directly in any terminal without Claude Code. Supports both slash-style (`/recon target.com`) and subcommand-style (`claudebbp recon target.com`) with shell autocomplete via typer.
+- **`core/` module** — 10 production-grade Python modules replacing scattered scripts:
+  - `core/validate.py` — full **7-Question Gate** with per-question weights (max 11 pts, threshold 7). Scoring: Q1–Q4 worth 0–2 pts each (triggerable, realistic interaction, concrete impact, in scope); Q5–Q7 worth 0–1 pt (PoC, not known, worth reporting).
+  - `core/recon.py` — async parallel pipeline: subfinder + assetfinder → httpx → katana + gau + waybackurls → nuclei
+  - `core/hunt.py` — auto-selects vuln classes from recon tech stack; runs dalfox, nuclei, sqlmap, h1_idor_scanner, h1_oauth_tester in parallel
+  - `core/report.py` — generates H1, Bugcrowd, and Intigriti reports with CVSS, impact statements, and remediation guidance
+  - `core/chain.py` — **17 chain patterns** (XSS→ATO, SSRF→RCE, IDOR→ATO, OAuth→ATO, SQLi→AuthBypass, etc.) with severity upgrade suggestions
+  - `core/autopilot.py` — full paranoid/normal/yolo loop wired to the new modules
+  - `core/web3.py` — Slither + Mythril + 12-class pattern scan + 8-flag rug-pull detector
+  - `core/intel.py`, `core/scope.py`, `core/triage.py`
+- **`utils/`** — `tools.py` async wrappers for 15+ external tools, `state.py` JSON state shared across all modules (`~/.claudebbp/state/<target>.json`), `logger.py` rich colored output
+- **`install.sh` updated** — auto-installs Python deps (`typer rich requests certifi`), makes CLI executable, optionally symlinks to `/usr/local/bin/claudebbp`
 
 ### v4.1.0 — Auto-Memory + README (Apr 2026)
 
