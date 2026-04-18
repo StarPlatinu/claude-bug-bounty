@@ -1,211 +1,35 @@
-<p align="center">
-  <img src="logo.png" alt="Claude Bug Bounty Logo" width="320"/>
-</p>
+# claudebbp — Bug Bounty Scanner
 
-<div align="center">
-
-<img src="https://img.shields.io/badge/v4.2.0-Full_Stack_Hunter-blueviolet?style=for-the-badge" alt="v4.2.0">
-
-# Claude Bug Bounty
-
-### Find security vulnerabilities, get paid — with AI doing the heavy lifting
-
-*Your AI hunting partner that remembers past targets, spots vulnerabilities, and writes reports for you.*
-<br>
-*The community made a meme coin to support the project CA: J6VzBAGnyyNEyzyHhauwg3ofRctFxnTLzQCcjUdGpump*
-<sub>by <a href="https://shuvonsec.me">shuvonsec</a></sub>
-
-<br>
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-[![Python 3.8+](https://img.shields.io/badge/Python-3.8+-3776AB.svg?style=flat-square&logo=python&logoColor=white)](https://python.org)
-[![Tests](https://img.shields.io/badge/Tests-129_passing-brightgreen.svg?style=flat-square)](tests/)
-[![Claude Code](https://img.shields.io/badge/Claude_Code-Plugin-D97706.svg?style=flat-square&logo=anthropic&logoColor=white)](https://claude.ai/claude-code)
-
-<br>
-
-<a href="#-what-is-this">What Is This?</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#-quick-start">Quick Start</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#-commands">Commands</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#-whats-new">What's New</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#-installation">Install</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="FAQ.md">FAQ</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="TERMS.md">Terms</a>
-
-<br>
-
-```
-  claudebbp CLI  ·  14 commands  ·  8 AI agents  ·  9 skill domains
-  20 web2 vuln classes  ·  10 web3 bug classes  ·  17 chain patterns
-  Burp MCP  ·  HackerOne MCP  ·  Autonomous Mode  ·  7-Question Gate
-```
-
-</div>
-
-<br>
+AI-powered recon and vulnerability scanner. Automates subdomain discovery, live host detection, URL crawling, nuclei scanning, and vuln hunting. Results are displayed in a web dashboard — you review findings and submit manually to the bounty platform.
 
 ---
 
-<br>
+## Requirements
 
-## What Is This?
-
-**Bug bounty hunting** is when companies pay you real money to find security vulnerabilities in their websites and apps before bad actors do. Platforms like HackerOne and Bugcrowd connect hunters with companies. Payouts range from $100 to $1,000,000+ depending on severity.
-
-**This tool** is a plugin for [Claude Code](https://claude.ai/claude-code) (Anthropic's AI coding assistant) that turns it into a professional bug bounty hunting partner. Instead of juggling 15 different tools and writing reports from scratch, you just type a command and the AI handles the rest.
-
-**In plain terms:**
-- You give it a target website
-- It automatically scans the site, finds vulnerabilities, validates they're real, and writes a professional report
-- It remembers what you found on past targets and applies that knowledge to new ones
-- You can even put it on autopilot and let it hunt on its own while you sleep
-
-**Who is it for?**
-- Security researchers who want to move faster
-- Bug bounty hunters who are tired of the manual grind
-- People learning security who want AI guidance at every step
-
-<br>
+- Python 3.8+
+- Go 1.21+ (for scanning tools)
+- [Claude Code](https://claude.ai/claude-code) (optional — for AI-driven mode)
 
 ---
 
-<br>
+## Install
 
-## The Problem (Before This Tool)
-
-Most hunters waste hours on things that shouldn't take that long:
-
-- Manually running 10+ tools in the right order just to map a target
-- Writing the same report structure from scratch every single time (45 min each)
-- Forgetting that a technique worked on a similar target 3 months ago
-- Submitting bugs that get rejected because they weren't properly validated first
-- Jumping between terminal windows, browser, notes, and report drafts
-
-<br>
-
-## The Solution (After This Tool)
-
-<div align="center">
-
-| Before | After |
-|:---|:---|
-| Run 10+ tools manually, hope for the best | AI orchestrates everything in the right order |
-| Write reports from scratch (45 min each) | Report-writer agent generates submission-ready reports in 60s |
-| Forget what worked last month | **Memory system** — patterns from target A inform target B |
-| Submit bugs without proper validation | **7-Question Gate** kills weak findings before you waste time reporting |
-| Can't see live browser traffic | **Burp MCP** — AI reads your proxy history in real time |
-| Hunt one endpoint at a time | **`/autopilot`** runs the full hunt loop while you watch |
-
-</div>
-
-<br>
-
----
-
-<br>
-
-## Quick Start
-
-> **Prerequisite:** [Claude Code](https://claude.ai/claude-code) for AI-driven mode, or just Python 3.8+ for CLI mode.
-
-**Step 1 — Clone & install**
+**1. Clone the repo**
 
 ```bash
 git clone https://github.com/StarPlatinu/claude-bug-bounty.git
 cd claude-bug-bounty
-
-chmod +x install_tools.sh && ./install_tools.sh   # subfinder, httpx, nuclei, katana, dalfox...
-chmod +x install.sh && ./install.sh               # AI skills + claudebbp CLI + Python deps
 ```
 
-**Step 2 — Pick your run mode**
-
----
-
-### Mode 1 — Claude Code (AI-driven, recommended)
+**2. Install scanning tools** (subfinder, httpx, nuclei, katana, dalfox, etc.)
 
 ```bash
-claude          # open Claude Code in the project folder
-
-/recon target.com       # map the target
-/hunt target.com        # test for vulnerabilities
-/validate               # 7-Question Gate
-/report                 # generate submission report
+chmod +x install_tools.sh && ./install_tools.sh
 ```
 
----
-
-### Mode 2 — `claudebbp` CLI (pure terminal, no Claude needed)
+Or install manually:
 
 ```bash
-python claudebbp.py /recon target.com
-python claudebbp.py /hunt target.com
-python claudebbp.py /validate target.com
-python claudebbp.py /report target.com
-```
-
-Focus on a specific vulnerability class:
-
-```bash
-python claudebbp.py /hunt target.com --vuln-class ssrf
-python claudebbp.py /hunt target.com --vuln-class idor
-python claudebbp.py /hunt target.com --vuln-class xss
-python claudebbp.py /hunt target.com --vuln-class oauth
-```
-
----
-
-### Mode 3 — Autopilot (fully automated, one command)
-
-Runs the entire loop — scope check → intel → recon → hunt → validate → report — without manual steps.
-
-```bash
-# Confirms before hunting + reporting (recommended for new targets)
-python claudebbp.py /autopilot target.com --mode normal
-
-# Confirms every single step
-python claudebbp.py /autopilot target.com --mode paranoid
-
-# Zero confirmations — fully hands-free
-python claudebbp.py /autopilot target.com --mode yolo
-```
-
----
-
-### Full Example Session
-
-```bash
-# 1. Map the target
-python claudebbp.py /recon hackerone.com
-
-# 2. See what attack surface was found
-python claudebbp.py /surface hackerone.com
-
-# 3. Pull CVEs + disclosed reports
-python claudebbp.py /intel hackerone.com
-
-# 4. Hunt for bugs
-python claudebbp.py /hunt hackerone.com
-
-# 5. Quick go/no-go triage
-python claudebbp.py /triage hackerone.com
-
-# 6. Full 7-Question Gate (scores 0–11, threshold 7 to submit)
-python claudebbp.py /validate hackerone.com
-
-# 7. Chain bugs to raise severity (IDOR→ATO, SSRF→RCE, XSS→ATO...)
-python claudebbp.py /chain hackerone.com
-
-# 8. Generate report
-python claudebbp.py /report hackerone.com --platform hackerone
-
-# 9. Pick up tomorrow where you left off
-python claudebbp.py /pickup hackerone.com
-```
-
-> All findings are saved to `~/.claudebbp/state/<target>.json` and persist between sessions automatically.
-
----
-
-### Install Scanning Tools (one time)
-
-```bash
-# macOS
-brew install go
 go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
 go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
 go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
@@ -213,375 +37,131 @@ go install -v github.com/projectdiscovery/katana/cmd/katana@latest
 go install -v github.com/lc/gau/v2/cmd/gau@latest
 go install -v github.com/tomnomnom/waybackurls@latest
 go install -v github.com/hahwul/dalfox/v2@latest
-
-# Python deps
-pip install typer rich requests certifi
 ```
 
-<br>
-
----
-
-<br>
-
-## How It Works
-
-Think of it like a team of specialists, each doing one job:
-
-```
-                        YOU
-                         |
-                   ┌─────▼─────┐
-                   │   Claude   │ ◄── Burp MCP (sees your browser traffic)
-                   │   Code     │ ◄── HackerOne MCP (program intel)
-                   └─────┬─────┘
-                         |
-         ┌───────────────┼───────────────┐
-         |               |               |
-   ┌─────▼─────┐  ┌──────▼──────┐  ┌────▼────┐
-   │   Recon    │  │    Hunt     │  │ Report  │
-   │  (map it)  │  │  (test it)  │  │(write it│
-   └─────┬─────┘  └──────┬──────┘  └────┬────┘
-         |               |               |
-   finds all         checks for      formats for
-   subdomains,       vulnerabilities  HackerOne /
-   URLs, APIs        & validates      Bugcrowd /
-                     findings         Immunefi
-         |               |               |
-   ┌─────▼───────────────▼───────────────▼─────┐
-   │              Hunt Memory                   │
-   │   remembers everything across sessions     │
-   └────────────────────────────────────────────┘
-```
-
-Each step feeds the next. Claude orchestrates all of it, or you run any step on its own.
-
-<br>
-
----
-
-<br>
-
-## `claudebbp` CLI Reference
-
-Every slash command works both inside Claude Code and from the terminal via `python claudebbp.py`:
+**3. Install Python dependencies and skills**
 
 ```bash
-# Examples
-python claudebbp.py /recon target.com
-python claudebbp.py /hunt target.com --vuln-class idor
-python claudebbp.py /validate target.com
-python claudebbp.py /report target.com --platform intigriti
-python claudebbp.py /autopilot target.com --mode yolo
-python claudebbp.py /chain target.com
-python claudebbp.py /web3-audit contracts/Vault.sol
-python claudebbp.py /token-scan 0xAbCd...
-
-# Or use subcommand style (with autocomplete)
-claudebbp recon target.com
-claudebbp hunt target.com --vuln-class ssrf
+chmod +x install.sh && ./install.sh
 ```
 
-State is persisted to `~/.claudebbp/state/<target>.json` — every command shares the same findings, recon data, and scope across sessions.
-
-<br>
-
-## Commands
-
-### The Core 4 (start here)
-
-| Command | What It Does | When To Use |
-|:---|:---|:---|
-| `/recon target.com` | Maps the target — finds all subdomains, live pages, APIs, and runs basic scans | Always first |
-| `/hunt target.com` | Actively tests for vulnerabilities using the right technique for the tech stack | After recon |
-| `/validate` | Runs a 7-question check to confirm a finding is real before you write it up | Before every report |
-| `/report` | Generates a professional submission report for H1/Bugcrowd/Intigriti/Immunefi | After validation |
-
-### Power Commands
-
-| Command | What It Does |
-|:---|:---|
-| `/autopilot target.com` | AI runs the full loop automatically — recon → hunt → validate → report |
-| `/surface target.com` | Shows a ranked list of the best places to test (based on your past findings) |
-| `/pickup target.com` | Shows untested endpoints from last session and picks up where you left off |
-| `/remember` | Saves the current finding or technique to memory for future use |
-| `/intel target.com` | Pulls CVEs and past disclosed reports relevant to this target |
-| `/chain` | When you find bug A, this finds bugs B and C that usually come with it |
-| `/scope <asset>` | Checks if a domain or URL is in scope before you test it |
-| `/triage` | Quick 2-minute go/no-go check — should you keep investigating or move on? |
-| `/web3-audit <contract>` | Full smart contract security audit with 10 bug class checklist |
-| `/token-scan <contract>` | Scans a meme coin or token for rug pull signals (EVM + Solana) |
-
-<br>
-
 ---
 
-<br>
+## Usage
 
-## AI Agents
+### Option A — Web Dashboard (recommended)
 
-8 specialized agents, each built for one job:
-
-| Agent | What It Does |
-|:---|:---|
-| **recon-agent** | Finds all subdomains, live hosts, and URLs for a target |
-| **report-writer** | Writes professional, impact-first reports that get paid |
-| **validator** | Runs the 7-Question Gate — kills weak findings before you waste time |
-| **web3-auditor** | Audits smart contracts for 10 common vulnerability classes |
-| **chain-builder** | When you find one bug, finds the chain of related bugs |
-| **autopilot** | Runs the whole hunt loop autonomously with safety checkpoints |
-| **recon-ranker** | Ranks the attack surface so you test the highest-value targets first |
-| **token-auditor** | Fast meme coin / token rug pull and security analysis |
-
-<br>
-
----
-
-<br>
-
-## What's New
-
-### v4.2.0 — `claudebbp` CLI + Full Core Module (Apr 2026)
-
-- **`claudebbp.py`** — new unified CLI that runs every command directly in any terminal without Claude Code. Supports both slash-style (`/recon target.com`) and subcommand-style (`claudebbp recon target.com`) with shell autocomplete via typer.
-- **`core/` module** — 10 production-grade Python modules replacing scattered scripts:
-  - `core/validate.py` — full **7-Question Gate** with per-question weights (max 11 pts, threshold 7). Scoring: Q1–Q4 worth 0–2 pts each (triggerable, realistic interaction, concrete impact, in scope); Q5–Q7 worth 0–1 pt (PoC, not known, worth reporting).
-  - `core/recon.py` — async parallel pipeline: subfinder + assetfinder → httpx → katana + gau + waybackurls → nuclei
-  - `core/hunt.py` — auto-selects vuln classes from recon tech stack; runs dalfox, nuclei, sqlmap, h1_idor_scanner, h1_oauth_tester in parallel
-  - `core/report.py` — generates H1, Bugcrowd, and Intigriti reports with CVSS, impact statements, and remediation guidance
-  - `core/chain.py` — **17 chain patterns** (XSS→ATO, SSRF→RCE, IDOR→ATO, OAuth→ATO, SQLi→AuthBypass, etc.) with severity upgrade suggestions
-  - `core/autopilot.py` — full paranoid/normal/yolo loop wired to the new modules
-  - `core/web3.py` — Slither + Mythril + 12-class pattern scan + 8-flag rug-pull detector
-  - `core/intel.py`, `core/scope.py`, `core/triage.py`
-- **`utils/`** — `tools.py` async wrappers for 15+ external tools, `state.py` JSON state shared across all modules (`~/.claudebbp/state/<target>.json`), `logger.py` rich colored output
-- **`install.sh` updated** — auto-installs Python deps (`typer rich requests certifi`), makes CLI executable, optionally symlinks to `/usr/local/bin/claudebbp`
-
-### v4.1.0 — Auto-Memory + README (Apr 2026)
-
-- **Auto-memory at session end** — the AI now automatically logs what it tested and found after every hunt session. Memory used to stay empty until you manually ran `/remember`. Now the flywheel starts on day 1.
-- README badge and stats updated, `install_tools.sh` added to Quick Start (was missing)
-- `hunt-memory/` added to `.gitignore` (contains full URL history, shouldn't be committed)
-
-### v4.0.0 — Meme Coin Security Module (Apr 2026)
-
-- **`/token-scan <contract>`** — automated rug pull scanner for EVM and Solana tokens
-- **`skills/meme-coin-audit/`** — 8 token bug classes: mint authority, freeze authority, LP locks, honeypot detection, bonding curve exploits, Solana SPL checks
-- **New agent:** `token-auditor`
-
-### v3.1.1 — CI/CD Scanner (Mar 2026)
-
-- **GitHub Actions security scanning** built into the recon pipeline
-- Auto-detects GitHub orgs from recon data and scans their workflow files
-- 52 rules, 81.6% GHSA coverage — catches expression injection, secret leaks, supply chain attacks
-
-<details>
-<summary><b>Older releases (v3.1.0, v3.0.0, v2.x)</b></summary>
-<br>
-
-**v3.1.0 — Hunting Methodology Skill**
-- `skills/bb-methodology/` — mindset + 5-phase non-linear workflow, decision trees per vuln class, 20-min rotation clock
-
-**v3.0.0 — The Bionic Hunter**
-- `/autopilot` — full autonomous hunt loop with `--paranoid`, `--normal`, `--yolo` modes
-- Hunt memory — journal, pattern DB, target profiles, cross-target learning
-- Burp MCP — AI reads your proxy history in real time
-- HackerOne MCP — search disclosed reports, get program stats and policy
-- `/intel`, `/pickup`, `/remember`, `/surface` commands
-
-**v2.1.0 — 20 Vuln Classes**
-- MFA/2FA bypass and SAML/SSO attacks added (classes 19 and 20)
-- NoSQL injection, command injection, SSTI, HTTP smuggling, WebSocket payloads added to arsenal
-
-</details>
-
-<br>
-
----
-
-<br>
-
-## What It Can Find
-
-<details>
-<summary><b>20 Web2 Vulnerability Classes</b> — click to expand</summary>
-<br>
-
-These are the types of security bugs it looks for in regular websites and APIs:
-
-| Vulnerability | What It Means | Typical Payout |
-|:---|:---|:---|
-| **IDOR** | Accessing another user's data by changing a number in the URL | $500 - $5K |
-| **Auth Bypass** | Getting into accounts or admin panels without permission | $1K - $10K |
-| **XSS** | Injecting malicious scripts into web pages | $500 - $5K |
-| **SSRF** | Making the server fetch internal resources it shouldn't | $1K - $15K |
-| **Business Logic** | Exploiting flaws in how the app is supposed to work | $500 - $10K |
-| **Race Conditions** | Sending requests at the same time to get double rewards/credits | $500 - $5K |
-| **SQL Injection** | Manipulating the database through user inputs | $1K - $15K |
-| **OAuth/OIDC** | Breaking the "Login with Google/GitHub" flows | $500 - $5K |
-| **File Upload** | Uploading malicious files that get executed | $500 - $5K |
-| **GraphQL** | Auth bypass and data leaks through GraphQL APIs | $1K - $10K |
-| **LLM/AI** | Prompt injection and IDOR in AI-powered features | $500 - $10K |
-| **API Misconfig** | Mass assignment, JWT attacks, broken CORS | $500 - $5K |
-| **Account Takeover** | Taking over someone else's account | $1K - $20K |
-| **SSTI** | Template injection that leads to code execution | $2K - $10K |
-| **Subdomain Takeover** | Claiming expired subdomains (GitHub Pages, S3, Heroku) | $200 - $5K |
-| **Cloud/Infra** | Exposed S3 buckets, EC2 metadata, Firebase, Kubernetes | $500 - $20K |
-| **HTTP Smuggling** | Confusing front-end and back-end servers to bypass security | $5K - $30K |
-| **Cache Poisoning** | Poisoning CDN caches to serve malicious content to others | $1K - $10K |
-| **MFA Bypass** | Getting past two-factor authentication | $1K - $10K |
-| **SAML/SSO** | Breaking enterprise single sign-on implementations | $2K - $20K |
-
-</details>
-
-<details>
-<summary><b>10 Web3 / Smart Contract Bug Classes</b> — click to expand</summary>
-<br>
-
-These are bugs in blockchain smart contracts, common on Immunefi:
-
-| Vulnerability | What It Means | Typical Payout |
-|:---|:---|:---|
-| **Accounting Desync** | Contract's math gets out of sync with reality | $50K - $2M |
-| **Access Control** | Functions that should be admin-only aren't | $50K - $2M |
-| **Incomplete Code Path** | Edge cases that drain funds | $50K - $2M |
-| **Off-By-One** | Math errors that let attackers take more than they should | $10K - $100K |
-| **Oracle Manipulation** | Manipulating price feeds to exploit DeFi protocols | $100K - $2M |
-| **ERC4626 Attacks** | Vault share inflation attacks | $50K - $500K |
-| **Reentrancy** | Calling back into a contract before it finishes | $10K - $500K |
-| **Flash Loan** | Using uncollateralized loans to manipulate prices | $100K - $2M |
-| **Signature Replay** | Reusing signed transactions | $10K - $200K |
-| **Proxy/Upgrade** | Exploiting upgradeable contract patterns | $50K - $2M |
-
-</details>
-
-<br>
-
----
-
-<br>
-
-## Installation
-
-### What You Need First
+Start the dashboard, then add targets and scan from the browser:
 
 ```bash
-# macOS
-brew install go python3 node jq
-
-# Linux (Ubuntu/Debian)
-sudo apt install golang python3 nodejs jq
+./start_ui.sh
+# Open http://localhost:8080
 ```
 
-You also need [Claude Code](https://claude.ai/claude-code) installed and a free account.
+- **Add a target** in the left sidebar (e.g. `example.com`)
+- Click **▶ Scan** to run full recon + vuln hunt
+- View results in **Recon** tab (subdomains, live hosts, URLs, nuclei hits) and **Vulnerabilities** tab (findings with description, steps, PoC, remediation)
+- Stream live output in the **Terminal** tab
 
-### Install
+---
+
+### Option B — CLI
+
+Run any command directly from the terminal:
 
 ```bash
-git clone https://github.com/shuvonsec/claude-bug-bounty.git
-cd claude-bug-bounty
-chmod +x install_tools.sh && ./install_tools.sh   # scanning tools (subfinder, httpx, nuclei, etc.)
-chmod +x install.sh && ./install.sh               # AI skills + commands into Claude Code
+python3 claudebbp.py /recon target.com
+python3 claudebbp.py /hunt target.com
+python3 claudebbp.py /validate
+python3 claudebbp.py /surface target.com
+python3 claudebbp.py /intel target.com
 ```
 
-### API Keys
-
-<details>
-<summary><b>Chaos API</b> (recommended for better subdomain discovery)</summary>
-<br>
-
-1. Sign up free at [chaos.projectdiscovery.io](https://chaos.projectdiscovery.io)
-2. Add your key:
+Focus on a specific vulnerability class:
 
 ```bash
-export CHAOS_API_KEY="your-key-here"
-echo 'export CHAOS_API_KEY="your-key-here"' >> ~/.zshrc
+python3 claudebbp.py /hunt target.com --vuln-class ssrf
+python3 claudebbp.py /hunt target.com --vuln-class idor
+python3 claudebbp.py /hunt target.com --vuln-class xss
+python3 claudebbp.py /hunt target.com --vuln-class oauth
 ```
 
-</details>
-
-<details>
-<summary><b>Optional keys</b> (even better subdomain coverage)</summary>
-<br>
-
-Add to `~/.config/subfinder/config.yaml`:
-- [VirusTotal](https://www.virustotal.com) — free
-- [SecurityTrails](https://securitytrails.com) — free tier
-- [Censys](https://censys.io) — free tier
-- [Shodan](https://shodan.io) — paid
-
-</details>
-
-<br>
-
----
-
-<br>
-
-## The Rules (Always Active)
-
-These apply every session, no exceptions:
-
-```
- 1. READ FULL SCOPE FIRST   — only test what the program says you can
- 2. ONLY REAL BUGS          — "Can an attacker do this RIGHT NOW?" if no, stop
- 3. KILL WEAK FINDINGS FAST — 30-second check saves hours of wasted reporting
- 4. NEVER GO OUT OF SCOPE   — one wrong request can get you banned
- 5. 5-MINUTE RULE           — no progress after 5 min? move to the next target
- 6. VALIDATE BEFORE REPORT  — run /validate before you spend 30 min writing
- 7. IMPACT FIRST            — start with the bugs that have the worst consequences
-```
-
-<br>
-
----
-
-<br>
-
-## Related Projects
-
-| Repo | What It's For |
-|:---|:---|
-| **[claude-bug-bounty](https://github.com/shuvonsec/claude-bug-bounty)** | This — full hunting pipeline from recon to report |
-| **[web3-bug-bounty-hunting-ai-skills](https://github.com/shuvonsec/web3-bug-bounty-hunting-ai-skills)** | Smart contract security — 10 bug classes, Foundry PoC templates |
-| **[public-skills-builder](https://github.com/shuvonsec/public-skills-builder)** | Turns 500+ public bug writeups into Claude skill files |
-
-<br>
-
----
-
-<br>
-
-## Contributing
-
-PRs welcome. Best contributions:
-- New vulnerability scanners or detection modules
-- Payload additions to `skills/security-arsenal/SKILL.md`
-- Real-world methodology improvements (with evidence from paid reports)
-- Support for more platforms (YesWeHack, Synack, HackenProof)
+Autopilot — runs the full loop automatically:
 
 ```bash
-git checkout -b feature/your-contribution
-git commit -m "Add: short description"
-git push origin feature/your-contribution
+python3 claudebbp.py /autopilot target.com --mode normal    # confirms before each step
+python3 claudebbp.py /autopilot target.com --mode paranoid  # confirms every action
 ```
 
-<br>
+---
+
+### Option C — Claude Code (AI-driven)
+
+```bash
+claude   # open Claude Code in the project folder
+```
+
+Then use slash commands directly in the chat:
+
+```
+/recon target.com
+/hunt target.com
+/validate
+/surface target.com
+/intel target.com
+/chain
+/scope <asset>
+/pickup target.com
+/web3-audit contracts/Vault.sol
+/token-scan 0xAbCd...
+```
 
 ---
 
-<br>
+## Commands Reference
 
-<div align="center">
-
-**For authorized security testing only.** Only test targets within an approved bug bounty program scope.<br>
-Never test systems without explicit written permission. Follow responsible disclosure.
+| Command | What it does |
+|---|---|
+| `/recon target.com` | Subdomain enum → live hosts → URL crawl → nuclei scan |
+| `/hunt target.com` | Vuln checks (IDOR, XSS, SSRF, SQLi, OAuth, CVE…) |
+| `/validate` | 7-Question Gate — scores 0–11, threshold 7 to submit |
+| `/surface target.com` | Ranked attack surface from recon data |
+| `/intel target.com` | CVEs + disclosed HackerOne reports for target |
+| `/chain` | Find A→B→C exploit chains (17 patterns) |
+| `/triage` | Quick go/no-go check before hunting deeper |
+| `/scope <asset>` | Verify asset is in scope before testing |
+| `/pickup target.com` | Resume previous hunt — history + untested endpoints |
+| `/autopilot target.com` | Full autonomous loop (recon → hunt → validate) |
+| `/remember` | Log finding to persistent hunt journal |
+| `/web3-audit <file.sol>` | Slither + Mythril + pattern scan on Solidity contract |
+| `/token-scan <contract>` | Rug-pull and honeypot detection (EVM + Solana) |
 
 ---
 
-<br>
+## State & Data
 
-MIT License · **Built by bug hunters, for bug hunters.**
+All findings and recon data are saved to:
 
-If this helped you find a bug, leave a star ⭐
+```
+~/.claudebbp/state/<target>.json
+```
 
-</div>
+Every command shares the same state — recon data from `/recon` is available to `/hunt`, and findings persist between sessions.
+
+---
+
+## Optional API Keys
+
+Better subdomain coverage with these free keys:
+
+```bash
+export CHAOS_API_KEY="your-key"          # chaos.projectdiscovery.io
+export VIRUSTOTAL_API_KEY="your-key"     # virustotal.com
+export SECURITYTRAILS_API_KEY="your-key" # securitytrails.com
+```
+
+Add to `~/.zshrc` or `~/.bashrc` to persist.
+
+---
+
+**For authorized security testing only.** Only test targets within an approved bug bounty program scope.
