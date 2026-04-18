@@ -573,14 +573,6 @@ git push origin feature/your-contribution
 
 <div align="center">
 
-### Connect
-
-[GitHub](https://github.com/shuvonsec) &nbsp;&nbsp;|&nbsp;&nbsp; [Twitter](https://x.com/shuvonsec) &nbsp;&nbsp;|&nbsp;&nbsp; [LinkedIn](https://linkedin.com/in/shuvonsec) &nbsp;&nbsp;|&nbsp;&nbsp; [Email](mailto:shuvonsec@gmail.com)
-
-<br>
-
----
-
 **For authorized security testing only.** Only test targets within an approved bug bounty program scope.<br>
 Never test systems without explicit written permission. Follow responsible disclosure.
 
